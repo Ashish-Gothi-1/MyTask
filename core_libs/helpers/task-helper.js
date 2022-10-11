@@ -16,9 +16,9 @@ const getTasks = async (userId) => {
         throw error;
     }
 }
-const updateTask = async (userId, taskInfo) => {
+const updateTask = async (taskId, taskInfo) => {
     try{
-       const update = await TasksModel.updateTask(userId, taskInfo); 
+       const update = await TasksModel.updateTask(taskId, taskInfo); 
        return update;
     }catch(error) {
         throw error;
@@ -34,5 +34,8 @@ const deleteTask = async (taskId) => {
 }
 
 module.exports = {
-    createTask
+    createTask,
+    getTasks,
+    updateTask,
+    deleteTask
 }

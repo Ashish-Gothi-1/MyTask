@@ -1,6 +1,7 @@
 const mongoose = require('../utils/database-connection').Mongoose;
 const moment = require('moment')
-
+const fs = require('fs');
+const axios = require('axios');
 
 const tasksSchema = new mongoose.Schema({
     title: {
@@ -11,7 +12,7 @@ const tasksSchema = new mongoose.Schema({
         type: Date
     },
     attachment: {
-        type: String
+        type : Buffer
     },
     user_id : {
         type: mongoose.Schema.Types.ObjectId,
@@ -52,17 +53,28 @@ tasksSchema.statics.loadAllByFilters = async function (filters = {}, ordering, o
         count
     };
 };
-
+const getAttachmentAsBuffer = async (fileName) => {
+    try{
+        const response = await axios.get(fileName);
+        if(response && response.data) {
+            return response.data;
+        }
+        return null;
+    }catch(error) {
+        return null;
+    }
+}
 tasksSchema.statics.createTask = async function (user, taskInfo) {
     try {
-        console.log("TaskInfo",taskInfo);
+        if(taskInfo.attachment) {
+           taskInfo.attachment = await getAttachmentAsBuffer(taskInfo.attachment)
+        }
         const task = new this({
             ...taskInfo,
             user_id : user.userId   
         });
 
         await task.save();
-
         return task._id;
     } catch (error) {
         console.log(error);
@@ -86,8 +98,9 @@ tasksSchema.statics.deleteTask = async function (taskId) {
         const deleted  = await this.deleteOne({
             _id : taskId
         });
-        return deleted ? true : false;
-    } catch (err) {
+        return deleted.deletedCount ? true : false;
+    } catch (error) {
+        console.log(error);
         return false;
     }
 }

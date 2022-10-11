@@ -51,6 +51,10 @@ module.exports = {
         invalidParameters:{
             code: 4006,
             msg: "Invalid parameters"
+        },
+        unableToUpdate : {
+            code :4007,
+            msg : "Invalid taskId. Unable to update task."  
         }
     },
     validation : {
